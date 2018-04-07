@@ -1,0 +1,47 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: ebooks-ui
+spec:
+  selector:
+    app: ebooks-ui
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 3000
+---
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: ebooks-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ebooks-ui
+  template:
+    metadata:
+      labels:
+        app: ebooks-ui
+    spec:
+      containers:
+      - name: ebooks-ui
+        image: <<image>>
+        ports:
+          - containerPort: 3000
+      securityContext:
+        fsGroup: 1000
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ebooks-ui
+spec:
+  rules:
+  - host: ebooks.apps.home
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: ebooks-ui
+          servicePort: 80
