@@ -6,11 +6,13 @@
           <b-btn v-b-toggle.filters variant="primary">Filters</b-btn>
         </div>
         <div class="col align-self-end text-right">
-          <select  v-model="sort" v-on:change="offset = 1; getBooks();">
+          <select  v-model="sort" v-on:change="offset = 0; getBooks();">
             <option value="title,rating">Sort by Title asc</option>
             <option value="-title,rating">Sort by Title desc</option>
             <option value="rating,title">Sort By Rating asc</option>
             <option value="-rating,title">Sort By Rating desc</option>
+            <option value="series,series_index,-rating,title">Sort By Series asc</option>
+            <option value="series,-series_index,-rating,title">Sort By Series desc</option>
           </select>
         </div>
     </div>
@@ -19,19 +21,19 @@
         <b-card>
           <div class="row">
             <div class="col">
-              <input v-model="title" v-on:blur="offset = 1; getBooks();" type="text" placeholder="Title Contains">
+              <input v-model="title" v-on:blur="offset = 0; getBooks();" type="text" placeholder="Title Contains">
             </div>
           <div class="col">
-            <input v-model="series" v-on:blur="offset = 1; getBooks();" type="text" placeholder="Series Contains">
+            <input v-model="series" v-on:blur="offset = 0; getBooks();" type="text" placeholder="Series Contains">
           </div>
           <div class="col">
-            <input v-model="subject" v-on:blur="offset = 1; getBooks();" type="text" placeholder="Subject Contains">
+            <input v-model="subject" v-on:blur="offset = 0; getBooks();" type="text" placeholder="Subject Contains">
           </div>
           <div class="col">
-            <input v-model="author" v-on:blur="offset = 1; getBooks();" type="text" placeholder="Author Contains">
+            <input v-model="author" v-on:blur="offset = 0; getBooks();" type="text" placeholder="Author Contains">
           </div>
           <div class="col">
-            <select v-model="rating" v-on:change="offset = 1; getBooks();">
+            <select v-model="rating" v-on:change="offset = 0; getBooks();">
               <option value="">No Minimum Rating</option>
               <option value="1">Rating must be at least 1</option>
               <option value="2">Rating must be at least 2</option>
@@ -46,7 +48,7 @@
 
     <div class="row mt-2">
       <div class="col align-self-start">
-        <button class="btn btn-primary" v-bind:class="{ disabled: (offset === 1) }" v-on:click="previous()">Previous</button>
+        <button class="btn btn-primary" v-bind:class="{ disabled: (offset === 0) }" v-on:click="previous()">Previous</button>
       </div>
       <div class="col align-self-end text-right">
         <button class="btn btn-primary" v-on:click="next();">Next</button>
@@ -56,12 +58,49 @@
     <div class="card mt-2" v-for="book of books">
       <!--<img class="card-img-top" src="..." alt="Card image cap">-->
       <div class="card-body">
-        <h5 class="card-title">{{book.title}}</h5>
+        <div class="row">
+          <div class="col align-self-start">
+            <h5 class="card-title">
+              {{book.title}}
+            </h5>
+          </div>
+          <div class="col-1 align-self-end text-right">
+            <a class="btn btn-primary btn-sm" :href="'http://ebooks-api.apps.home/books/' + book.id + '/download'">download</a>
+          </div>
+        </div>
+        <h6 class="card-authors">
+          <div class="row">
+            <div class="col-md-2" v-for="ab of book.AuthorBooks">
+              {{ab.Author.name}}
+            </div>
+          </div>
+        </h6>
         <h6 class="card-series" v-if="book.series">{{book.series}}: {{book.series_index}}</h6>
-        <h6 class="card-rating" v-if="book.rating"> GoodReads Rating: {{book.rating}}</h6>
-        <p class="card-text">{{book.description}}</p>
-        <h6 class="card-pagecount" v-if="book.pages">Page Count: {{book.pages}}</h6>
-        <h6 class="card-extrainfo">Publisher: {{book.publisher}} Date: {{book.publication_date | moment("dddd, MMMM Do YYYY")}}   Language: {{book.language}}</h6>
+        <h6 class="card-rating" v-if="book.rating">
+          <div class="row">
+            <div class="col-md-2">
+              Rating: {{book.rating}}
+            </div>
+            <div class="col-md-2">
+              Page Count: {{book.pages}}
+            </div>
+            <div class="col-md-2">
+              Language: {{book.language}}
+            </div>
+          </div>
+        </h6>
+        <read-more more-str="read more" :text="(book.description)?book.description:''" link="#" less-str="read less" :max-chars="250"></read-more>
+        <h6 class="card-pagecount" v-if="book.pages"></h6>
+        <h6 class="card-extrainfo">
+          <div class="row">
+           <div class="col-md-2">
+              Publisher: {{book.publisher}}
+          </div>
+          <div class="col-md-2">
+            Date: {{book.publication_date | moment("MMM Do YYYY")}}
+          </div>
+        </div>
+        </h6>
         <a :href="'https://www.goodreads.com/book/show/' + book.grid" class="btn btn-primary" v-if="book.grid">View on GoodReads</a>
       </div>
     </div>
@@ -87,12 +126,12 @@ export default {
       author: null,
       rating: "",
       limit: 1000,
-      offset: 1
+      offset: 0
     }
   },
   methods: {
     previous(){
-      if(this.offset === 1){
+      if(this.offset === 0){
         return;
       }
       this.offset -= this.limit;
