@@ -65,7 +65,7 @@
             </h5>
           </div>
           <div class="col-1 align-self-end text-right">
-            <a class="btn btn-primary btn-sm" :href="'http://localhost:8082/books/' + book.id + '/download'">download</a>
+            <a class="btn btn-primary btn-sm" :href="'http://mordor.home:8082/books/' + book.id + '/download'">download</a>
           </div>
         </div>
         <h6 class="card-authors">
@@ -161,7 +161,7 @@ export default {
       if(this.author || this.subject){
         filters += "&requireIncludes=true"
       }
-      axios.get("http://localhost:8082/books?includes=AuthorBooks.Author,Subjects&sort=" + this.sort + "&limit=" + this.limit + "&offset=" + this.offset + filters, config)
+      axios.get("http://mordor.home:8082/books?includes=AuthorBooks.Author,Subjects&sort=" + this.sort + "&limit=" + this.limit + "&offset=" + this.offset + filters, config)
       .then(response => {
         this.books = response.data
       })
