@@ -6,7 +6,7 @@ After=multi-user.target
 Type=idle
 User=terickson
 WorkingDirectory=/usr/apps/ebooks-ui
-ExecStart=node_modules/.bin/serve --single --port=3000 .
+ExecStart=/usr/apps/ebooks-ui/node_modules/.bin/serve --single --port=3000 /usr/apps/ebooks-ui
 Restart=always
 TimeoutStartSec=10
 RestartSec=10
